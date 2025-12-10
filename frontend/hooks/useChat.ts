@@ -1,0 +1,144 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
+import { chatService } from "@/services/chatService";
+import { IMessage, MessageRole } from "@/types/chat";
+import { isAxiosError } from "axios";
+
+export const useChat = () => {
+  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
+
+  const [inputVal, setInputVal] = useState("");
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const initChat = async () => {
+      let currentSession = localStorage.getItem("chat_session_id");
+      if (!currentSession) {
+        currentSession = uuidv4();
+        localStorage.setItem("chat_session_id", currentSession);
+      }
+      setSessionId(currentSession);
+
+      try {
+        const history = await chatService.getHistory(currentSession);
+        setMessages(history);
+      } catch (error) {
+        console.error("Load history error:", error);
+        toast.error("ไม่สามารถโหลดประวัติการแชทได้");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initChat();
+  }, []);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isSending]);
+
+  const stopGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setIsSending(false);
+      toast.info("หยุดการสร้างข้อความแล้ว");
+    }
+  };
+
+  const sendMessage = async (content: string) => {
+    if (!sessionId) return;
+
+    abortControllerRef.current = new AbortController();
+
+    const optimisticMsg: IMessage = {
+      _id: uuidv4(),
+      sessionId,
+      role: MessageRole.USER,
+      content,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setIsSending(true);
+    setInputVal("");
+
+    try {
+      const responseData = await chatService.sendMessage(
+        { sessionId, content },
+        abortControllerRef.current.signal
+      );
+      setMessages((prev) => [...prev, responseData]);
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        if (error.code === "ERR_CANCELED" || error.name === "CanceledError") {
+          // console.log("Request canceled by user");
+          return;
+        }
+      }
+      // console.error("Send error:", error);
+      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI");
+    } finally {
+      setIsSending(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const clearChat = async () => {
+    if (!sessionId) return;
+    try {
+      await chatService.clearHistory(sessionId);
+      setMessages([]);
+      toast.success("ลบประวัติการสนทนาเรียบร้อย");
+    } catch (error) {
+      console.error("Clear error: ", error);
+      toast.error("ไม่สามารถลบประวัติแชทได้");
+    }
+  };
+
+  const editMessage = async (id: string, newContent: string) => {
+    const index = messages.findIndex((m) => m._id === id);
+    if (index === -1) return;
+
+    const keepMessages = messages.slice(0, index);
+    const deleteMessages = messages.slice(index);
+
+    setMessages(keepMessages);
+    setIsSending(true);
+
+    try {
+      const realMessagesToDelete = deleteMessages.filter(
+        (msg) => msg._id.length === 24
+      );
+      if (realMessagesToDelete.length > 0) {
+        await Promise.all(
+          realMessagesToDelete.map((msg) => chatService.deleteMessage(msg._id))
+        );
+      }
+      await sendMessage(newContent);
+    } catch (error) {
+      console.error("Edit error:", error);
+      toast.error("เกิดข้อผิดพลาดในการแก้ไข");
+    }
+  };
+
+  return {
+    messages,
+    isLoading,
+    isSending,
+    sendMessage,
+    clearChat,
+    scrollRef,
+    stopGeneration,
+    inputVal,
+    setInputVal,
+    editMessage,
+  };
+};
