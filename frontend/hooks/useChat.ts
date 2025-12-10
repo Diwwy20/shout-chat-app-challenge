@@ -17,7 +17,6 @@ export const useChat = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // ... (useEffect initChat เหมือนเดิม) ...
   useEffect(() => {
     const initChat = async () => {
       let currentSession = localStorage.getItem("chat_session_id");
@@ -94,7 +93,6 @@ export const useChat = () => {
   };
 
   const clearChat = async () => {
-    // ... (เหมือนเดิม) ...
     if (!sessionId) return;
     try {
       await chatService.clearHistory(sessionId);
@@ -106,16 +104,12 @@ export const useChat = () => {
     }
   };
 
-  // --- ส่วนที่แก้ใหม่หมด ---
   const editMessage = async (id: string, newContent: string) => {
     const targetIndex = messages.findIndex((m) => m._id === id);
     if (targetIndex === -1) return;
 
-    // 1. Optimistic Update: ตัดข้อความที่อยู่ข้างล่างทิ้งไปก่อนให้ User เห็นว่ากำลังแก้
-    // ให้เหลือถึงแค่ข้อความที่จะแก้
     const keepMessages = messages.slice(0, targetIndex + 1);
 
-    // อัปเดตเนื้อหาใน UI ทันที
     keepMessages[targetIndex] = {
       ...keepMessages[targetIndex],
       content: newContent,
