@@ -16,12 +16,14 @@ export class OllamaService implements IAIService {
   async generateResponse(messages: IChatPayload[]): Promise<string> {
     try {
       const payload = {
-        model: "gemma3:12b",
+        model: config.ollamaModel,
         messages: messages,
         stream: false,
       };
 
-      console.log("Sending request to Ollama...");
+      console.log(
+        `Sending request to Ollama (Model: ${config.ollamaModel})...`
+      );
 
       const response = await axios.post<OllamaResponse>(
         config.ollamaApiUrl,

@@ -7,6 +7,7 @@ const config = {
   nodeEnv: process.env.NODE_ENV || "development",
   mongoUri: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/shout-chat",
   ollamaApiUrl: process.env.OLLAMA_API_URL || "http://127.0.0.1:11434/api/chat",
+  ollamaModel: process.env.OLLAMA_MODEL || "gemma3:12b",
   clientUrl: process.env.CLIENT_URL || "http://localhost:3000",
 };
 
