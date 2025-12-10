@@ -65,6 +65,7 @@ Ensure your machine has enough RAM. For 12B models, ~16GB RAM is recommended. If
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/Diwwy20/shout-chat-app-challenge
+cd shout-chat-app-challenge
 ```
 
 ### 2. Backend Setup
@@ -170,4 +171,5 @@ Base URL: `/api/chat`
 <img width="1916" height="1078" alt="screen-2" src="https://github.com/user-attachments/assets/90b51f4c-d2e8-4a8f-b9ea-e1aeabb37c0f" />
 
 <img width="1918" height="1076" alt="screen-3" src="https://github.com/user-attachments/assets/6adf9bf6-5f41-407f-9b2e-1ac5a7401378" />
+
 
