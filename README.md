@@ -6,8 +6,8 @@ A real-time Full-Stack Chat Web Application that integrates with a local LLM (Ol
 
 - **Real-time Chat:** Send messages and receive AI responses instantly.
 - **Smart Interactions:**
-    - **Stop Generation:** Users can halt the AI's response mid-stream.
-    - **Edit & Regenerate:** Hover over user messages to edit and regenerate the conversation flow.
+    - **Stop Generation:** Users can halt the AI's response mid-stream instantly.
+    - **Atomic Edit & Regenerate:** Sophisticated server-side logic allows users to edit past messages. The system automatically updates the context, clears future messages, and regenerates the AI response in a single atomic operation to ensure conversation consistency.
     - **Copy to Clipboard:** Quickly copy user or AI messages with a single click.
 - **Theme Support:** Fully responsive **Light & Dark Mode** for comfortable viewing.
 - **Session Management:** Easily clear the entire conversation history to start fresh.
@@ -106,7 +106,7 @@ npm run dev
 
 ## Project Architecture & Design Decisions
 #### Backend Structure
-I implemented a Layered Architecture (Controller-Service-Repository) pattern to ensure separation of concerns and maintainability.
+I implemented a **Layered Architecture** (Controller-Service-Repository) pattern to ensure separation of concerns and maintainability.
 ```
 backend/src/
 ├── config/          # Database & Environment configs
@@ -122,6 +122,7 @@ backend/src/
 └── app.ts           # Express app setup
 └── server.ts        # Start Server
 ```
+
 #### Frontend Structure
 Using Next.js App Router with a feature-based folder structure.
 State Management: Instead of using heavy libraries like Redux, I implemented a Custom Hook (`useChat`).
@@ -152,15 +153,13 @@ frontend/
 
 ## 📝 API Endpoints
 Base URL: `/api/chat`
--   `GET /history/:sessionId`
-    -   Retrieve conversation history for a specific session.
--   `POST /message`
-    -   Send a message to AI and save the conversation context.
--   `DELETE /message/:messageId`
-    -   Delete a specific message by its ID.
-    -   *(Note: Used by the frontend for the "Edit & Regenerate" feature, where the old message context is removed before sending a new prompt).*
--   `DELETE /history/:sessionId`
-    -   Clear all chat history for a specific session.
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/history/:sessionId` | Retrieve full conversation history for a specific session. |
+| `POST` | `/message` | Send a new message to AI and save the conversation context. |
+| `PUT` | `/message/:messageId` | **Regenerate Message:** Update a user message, clear subsequent history, and trigger a fresh AI response. |
+| `DELETE` | `/message/:messageId` | Delete a specific message by its ID. |
+| `DELETE` | `/history/:sessionId` | Clear all chat history for a specific session. |
 
 ---
 
@@ -171,5 +170,6 @@ Base URL: `/api/chat`
 <img width="1916" height="1078" alt="screen-2" src="https://github.com/user-attachments/assets/90b51f4c-d2e8-4a8f-b9ea-e1aeabb37c0f" />
 
 <img width="1918" height="1076" alt="screen-3" src="https://github.com/user-attachments/assets/6adf9bf6-5f41-407f-9b2e-1ac5a7401378" />
+
 
 
