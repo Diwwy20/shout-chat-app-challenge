@@ -64,7 +64,7 @@ Ensure your machine has enough RAM. For 12B models, ~16GB RAM is recommended. If
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/Diwwy20/shout-chat-app-challenge](https://github.com/Diwwy20/shout-chat-app-challenge)
+git clone https://github.com/Diwwy20/shout-chat-app-challenge
 ```
 
 ### 2. Backend Setup
@@ -77,7 +77,7 @@ Configuration (.env): Create a .env file in the backend directory. For the purpo
 PORT=5000
 NODE_ENV=development
 MONGO_URI=mongodb://127.0.0.1:27017/shout-chat
-OLLAMA_API_URL=[http://127.0.0.1:11434/api/chat](http://127.0.0.1:11434/api/chat)
+OLLAMA_API_URL=http://127.0.0.1:11434/api/chat
 CLIENT_URL=http://localhost:3000
 ```
 Start the Server:
@@ -170,3 +170,4 @@ Base URL: `/api/chat`
 <img width="1916" height="1078" alt="screen-2" src="https://github.com/user-attachments/assets/90b51f4c-d2e8-4a8f-b9ea-e1aeabb37c0f" />
 
 <img width="1918" height="1076" alt="screen-3" src="https://github.com/user-attachments/assets/6adf9bf6-5f41-407f-9b2e-1ac5a7401378" />
+
