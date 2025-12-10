@@ -44,13 +44,15 @@ Before running the application, ensure you have the following installed:
 3.  **Ollama**: Download from [ollama.com](https://ollama.com/).
 
 ### Setting up Ollama Model
-This project is tested with `gemma3:12b`, but you can explore and use other models depending on your hardware capabilities.
+This project is configured to use `gemma3:12b` by default.
 
 1.  Install Ollama and ensure it's running.
 2.  Pull the model:
     ```bash
     ollama pull gemma3:12b
     ```
+
+> **Note:** If you wish to use a different model (e.g., `llama3`, `mistral`), update the `OLLAMA_MODEL` variable in the backend `.env` file and ensure you pull that specific model via Ollama CLI.
 
 **Alternative Models & Hardware Requirements:**
 Ensure your machine has enough RAM. For 12B models, ~16GB RAM is recommended. If you have lower specs, consider smaller models like `gemma3:1b` or `llama3.2:1b`.
@@ -79,6 +81,7 @@ PORT=5000
 NODE_ENV=development
 MONGO_URI=mongodb://127.0.0.1:27017/shout-chat
 OLLAMA_API_URL=http://127.0.0.1:11434/api/chat
+OLLAMA_MODEL=gemma3:12b  # You can change the model here (e.g., llama3, mistral)
 CLIENT_URL=http://localhost:3000
 ```
 Start the Server:
@@ -170,6 +173,7 @@ Base URL: `/api/chat`
 <img width="1916" height="1078" alt="screen-2" src="https://github.com/user-attachments/assets/90b51f4c-d2e8-4a8f-b9ea-e1aeabb37c0f" />
 
 <img width="1918" height="1076" alt="screen-3" src="https://github.com/user-attachments/assets/6adf9bf6-5f41-407f-9b2e-1ac5a7401378" />
+
 
 
 
