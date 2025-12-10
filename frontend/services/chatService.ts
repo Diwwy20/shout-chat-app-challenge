@@ -28,4 +28,13 @@ export const chatService = {
   clearHistory: async (sessionId: string): Promise<void> => {
     await apiClient.delete(`/chat/history/${sessionId}`);
   },
+
+  regenerateMessage: async (
+    messageId: string,
+    newContent: string
+  ): Promise<void> => {
+    await apiClient.put(`/chat/message/${messageId}`, {
+      content: newContent,
+    });
+  },
 };

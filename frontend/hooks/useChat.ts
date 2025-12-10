@@ -12,12 +12,12 @@ export const useChat = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
-
   const [inputVal, setInputVal] = useState("");
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // ... (useEffect initChat เหมือนเดิม) ...
   useEffect(() => {
     const initChat = async () => {
       let currentSession = localStorage.getItem("chat_session_id");
@@ -55,11 +55,12 @@ export const useChat = () => {
 
   const sendMessage = async (content: string) => {
     if (!sessionId) return;
-
     abortControllerRef.current = new AbortController();
 
+    const tempId = uuidv4();
+
     const optimisticMsg: IMessage = {
-      _id: uuidv4(),
+      _id: tempId,
       sessionId,
       role: MessageRole.USER,
       content,
@@ -75,15 +76,16 @@ export const useChat = () => {
         { sessionId, content },
         abortControllerRef.current.signal
       );
-      setMessages((prev) => [...prev, responseData]);
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === tempId ? responseData : msg))
+      );
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         if (error.code === "ERR_CANCELED" || error.name === "CanceledError") {
-          // console.log("Request canceled by user");
           return;
         }
       }
-      // console.error("Send error:", error);
+      setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
       toast.error("AI ไม่สามารถให้บริการในตอนนี้");
     } finally {
       setIsSending(false);
@@ -92,6 +94,7 @@ export const useChat = () => {
   };
 
   const clearChat = async () => {
+    // ... (เหมือนเดิม) ...
     if (!sessionId) return;
     try {
       await chatService.clearHistory(sessionId);
@@ -103,29 +106,34 @@ export const useChat = () => {
     }
   };
 
+  // --- ส่วนที่แก้ใหม่หมด ---
   const editMessage = async (id: string, newContent: string) => {
-    const index = messages.findIndex((m) => m._id === id);
-    if (index === -1) return;
+    const targetIndex = messages.findIndex((m) => m._id === id);
+    if (targetIndex === -1) return;
 
-    const keepMessages = messages.slice(0, index);
-    const deleteMessages = messages.slice(index);
+    // 1. Optimistic Update: ตัดข้อความที่อยู่ข้างล่างทิ้งไปก่อนให้ User เห็นว่ากำลังแก้
+    // ให้เหลือถึงแค่ข้อความที่จะแก้
+    const keepMessages = messages.slice(0, targetIndex + 1);
+
+    // อัปเดตเนื้อหาใน UI ทันที
+    keepMessages[targetIndex] = {
+      ...keepMessages[targetIndex],
+      content: newContent,
+    };
 
     setMessages(keepMessages);
     setIsSending(true);
 
     try {
-      const realMessagesToDelete = deleteMessages.filter(
-        (msg) => msg._id.length === 24
-      );
-      if (realMessagesToDelete.length > 0) {
-        await Promise.all(
-          realMessagesToDelete.map((msg) => chatService.deleteMessage(msg._id))
-        );
-      }
-      await sendMessage(newContent);
+      await chatService.regenerateMessage(id, newContent);
+
+      const freshHistory = await chatService.getHistory(sessionId);
+      setMessages(freshHistory);
     } catch (error) {
       console.error("Edit error:", error);
       toast.error("เกิดข้อผิดพลาดในการแก้ไข");
+    } finally {
+      setIsSending(false);
     }
   };
 

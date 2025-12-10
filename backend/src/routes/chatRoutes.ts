@@ -20,6 +20,8 @@ router.post(
   chatController.sendMessage
 );
 
+router.put("/message/:messageId", chatController.regenerateMessage);
+
 router.delete("/message/:messageId", chatController.deleteMessage);
 
 router.delete(

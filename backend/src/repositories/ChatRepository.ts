@@ -25,6 +25,24 @@ export class ChatRepository {
   async clearSession(sessionId: string): Promise<void> {
     await Message.deleteMany({ sessionId });
   }
+
+  async updateMessageContent(
+    messageId: string,
+    newContent: string
+  ): Promise<IMessage | null> {
+    return await Message.findByIdAndUpdate(
+      messageId,
+      { content: newContent },
+      { new: true }
+    );
+  }
+
+  async deleteMessagesAfter(sessionId: string, date: Date): Promise<void> {
+    await Message.deleteMany({
+      sessionId: sessionId,
+      createdAt: { $gt: date },
+    });
+  }
 }
 
 export default new ChatRepository();
