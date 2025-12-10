@@ -15,6 +15,12 @@ export const metadata: Metadata = {
   title: "Shout Chat AI | Smart Assistant",
   description:
     "Experience real-time AI conversations powered by Ollama and Next.js. Fast, local, and private.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({

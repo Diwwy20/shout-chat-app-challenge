@@ -97,7 +97,7 @@ export const ChatInput = ({
             onClick={handleSend}
             disabled={!value.trim() || disabled}
             className={cn(
-              "absolute right-1 top-1 h-10 w-10 rounded-full transition-all shadow-md",
+              "absolute right-1 top-1 h-10 w-10 rounded-full transition-all shadow-md cursor-pointer",
               disabled
                 ? "bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-600"
                 : "bg-blue-600 hover:bg-blue-700"

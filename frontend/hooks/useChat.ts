@@ -84,7 +84,7 @@ export const useChat = () => {
         }
       }
       // console.error("Send error:", error);
-      toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI");
+      toast.error("AI ไม่สามารถให้บริการในตอนนี้");
     } finally {
       setIsSending(false);
       abortControllerRef.current = null;

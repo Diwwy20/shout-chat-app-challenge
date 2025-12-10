@@ -34,7 +34,7 @@ export default function ChatPage() {
             alt="AI Assistant Avatar"
             width={32}
             height={32}
-            className="object-cover w-9 h-9 rounded-lg"
+            className="object-cover rounded-full w-10 h-10"
           />
 
           <div>
