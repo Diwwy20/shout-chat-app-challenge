@@ -1,3 +1,4 @@
+// hooks/useChat.ts
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -58,6 +59,7 @@ export const useChat = () => {
 
     const tempId = uuidv4();
 
+    // 1. สร้างข้อความ User เพื่อแสดงผลทันที (Optimistic Update)
     const optimisticMsg: IMessage = {
       _id: tempId,
       sessionId,
@@ -75,15 +77,18 @@ export const useChat = () => {
         { sessionId, content },
         abortControllerRef.current.signal
       );
-      setMessages((prev) =>
-        prev.map((msg) => (msg._id === tempId ? responseData : msg))
-      );
+
+      // ✅ FIX: แก้ไขตรงนี้ครับ
+      // เอาข้อความ AI ที่ได้จาก Server มา "ต่อท้าย" Array เดิม
+      // (ไม่ใช้ .map ไปทับข้อความ User เดิมแล้ว)
+      setMessages((prev) => [...prev, responseData]);
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         if (error.code === "ERR_CANCELED" || error.name === "CanceledError") {
           return;
         }
       }
+      // กรณี Error ให้ลบข้อความ User (optimisticMsg) ที่สร้างไว้ชั่วคราวออก
       setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
       toast.error("AI ไม่สามารถให้บริการในตอนนี้");
     } finally {
@@ -108,8 +113,10 @@ export const useChat = () => {
     const targetIndex = messages.findIndex((m) => m._id === id);
     if (targetIndex === -1) return;
 
+    // เก็บข้อความไว้แค่ถึงตัวก่อนหน้าที่จะแก้
     const keepMessages = messages.slice(0, targetIndex + 1);
 
+    // อัปเดตเนื้อหาใน UI ทันที
     keepMessages[targetIndex] = {
       ...keepMessages[targetIndex],
       content: newContent,
@@ -121,6 +128,7 @@ export const useChat = () => {
     try {
       await chatService.regenerateMessage(id, newContent);
 
+      // ดึงประวัติใหม่ทั้งหมดเพื่อให้ Sync กับ DB
       const freshHistory = await chatService.getHistory(sessionId);
       setMessages(freshHistory);
     } catch (error) {

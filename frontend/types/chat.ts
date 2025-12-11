@@ -17,6 +17,11 @@ export interface SendMessagePayload {
   content: string;
 }
 
+export interface SendMessageResponse {
+  userMessage: IMessage;
+  aiMessage: IMessage;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
