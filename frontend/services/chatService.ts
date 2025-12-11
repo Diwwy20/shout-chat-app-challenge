@@ -1,5 +1,10 @@
 import apiClient from "@/lib/axios";
-import { ApiResponse, IMessage, SendMessagePayload } from "@/types/chat";
+import {
+  ApiResponse,
+  IMessage,
+  SendMessagePayload,
+  SendMessageResponse,
+} from "@/types/chat";
 
 export const chatService = {
   getHistory: async (sessionId: string): Promise<IMessage[]> => {
@@ -12,8 +17,8 @@ export const chatService = {
   sendMessage: async (
     payload: SendMessagePayload,
     signal?: AbortSignal
-  ): Promise<IMessage> => {
-    const { data } = await apiClient.post<ApiResponse<IMessage>>(
+  ): Promise<SendMessageResponse> => {
+    const { data } = await apiClient.post<ApiResponse<SendMessageResponse>>(
       "/chat/message",
       payload,
       { signal }

@@ -16,13 +16,15 @@ export class ChatService {
   }
 
   async processUserMessage(sessionId: string, userContent: string) {
-    await this.chatRepository.createMessage(
+    const userMessage = await this.chatRepository.createMessage(
       sessionId,
       MessageRole.USER,
       userContent
     );
 
-    return await this.generateAIResponse(sessionId);
+    const aiMessage = await this.generateAIResponse(sessionId);
+
+    return { userMessage, aiMessage };
   }
 
   private async generateAIResponse(sessionId: string) {
