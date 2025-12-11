@@ -13,7 +13,10 @@ interface OllamaResponse {
 }
 
 export class OllamaService implements IAIService {
-  async generateResponse(messages: IChatPayload[]): Promise<string> {
+  async generateResponse(
+    messages: IChatPayload[],
+    signal?: AbortSignal
+  ): Promise<string> {
     try {
       const payload = {
         model: config.ollamaModel,
@@ -27,11 +30,18 @@ export class OllamaService implements IAIService {
 
       const response = await axios.post<OllamaResponse>(
         config.ollamaApiUrl,
-        payload
+        payload,
+        {
+          signal,
+        }
       );
 
       return response.data.message.content;
     } catch (error: any) {
+      if (axios.isCancel(error)) {
+        console.log("Ollama request canceled by user.");
+        throw error;
+      }
       console.error("Ollama Error:", error.message);
       throw new Error("AI Service is unavailable.");
     }

@@ -11,7 +11,19 @@ export class ChatController {
   sendMessage = asyncHandler(
     async (req: Request<{}, {}, SendMessageInput>, res: Response) => {
       const { sessionId, content } = req.body;
-      const result = await chatService.processUserMessage(sessionId, content);
+
+      const abortController = new AbortController();
+
+      res.on("close", () => {
+        console.log("Client disconnected. Aborting request...");
+        abortController.abort();
+      });
+
+      const result = await chatService.processUserMessage(
+        sessionId,
+        content,
+        abortController.signal
+      );
       res.status(200).json({
         success: true,
         data: result,
@@ -62,7 +74,16 @@ export class ChatController {
       throw new Error("Content is required");
     }
 
-    const result = await chatService.editAndRegenerate(messageId, content);
+    const abortController = new AbortController();
+    res.on("close", () => {
+      abortController.abort();
+    });
+
+    const result = await chatService.editAndRegenerate(
+      messageId,
+      content,
+      abortController.signal
+    );
 
     res.status(200).json({
       success: true,

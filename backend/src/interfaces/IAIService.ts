@@ -4,5 +4,8 @@ export interface IChatPayload {
 }
 
 export interface IAIService {
-  generateResponse(messages: IChatPayload[]): Promise<string>;
+  generateResponse(
+    messages: IChatPayload[],
+    signal?: AbortSignal
+  ): Promise<string>;
 }
