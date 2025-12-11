@@ -105,7 +105,7 @@ export default function ChatPage() {
                   alt="AI Assistant Avatar"
                   width={32}
                   height={32}
-                  className="object-cover w-9 h-9 rounded-lg"
+                  className="h-9 w-9 rounded-full"
                 />
                 <div className="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl rounded-bl-none px-5 py-4 shadow-sm flex items-center gap-1.5 h-8">
                   <span className="w-2 h-2 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
