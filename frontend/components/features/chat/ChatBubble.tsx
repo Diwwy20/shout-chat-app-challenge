@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, User, Copy, Pencil, Check, X } from "lucide-react";
+import { Bot, User, Copy, Pencil, Check, X, Sparkles } from "lucide-react";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { toast } from "sonner";
 
@@ -21,6 +21,8 @@ export const ChatBubble = ({
 }: ChatBubbleProps) => {
   const isUser = message.role === MessageRole.USER;
   const maxLength = 500;
+
+  const isStopped = message.content === "You stopped this response";
 
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
@@ -88,14 +90,22 @@ export const ChatBubble = ({
                   : "bg-white dark:bg-slate-800 border dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-none w-full"
               )}
             >
-              {isUser ? (
+              {isStopped ? (
+                <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 italic text-sm py-1">
+                  <Sparkles
+                    size={16}
+                    className="text-blue-400 fill-blue-100/50"
+                  />
+                  <span>{message.content}</span>
+                </div>
+              ) : isUser ? (
                 <p className="whitespace-pre-wrap">{message.content}</p>
               ) : (
                 <MarkdownRenderer content={message.content} />
               )}
             </div>
 
-            {isUser && (
+            {!isStopped && isUser && (
               <div className="absolute top-0 -left-2 -translate-x-full opacity-0 group-hover/bubble:opacity-100 transition-all duration-200 flex gap-1 bg-slate-100/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md p-1 shadow-sm scale-95 group-hover/bubble:scale-100 origin-right border dark:border-slate-700">
                 <Button
                   variant="ghost"
@@ -121,7 +131,7 @@ export const ChatBubble = ({
               </div>
             )}
 
-            {!isUser && (
+            {!isStopped && !isUser && (
               <div className="absolute top-0 -right-2 translate-x-full opacity-0 group-hover/bubble:opacity-100 transition-all duration-200 flex gap-1 bg-slate-100/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-md p-1 shadow-sm scale-95 group-hover/bubble:scale-100 origin-left border dark:border-slate-700">
                 <Button
                   variant="ghost"

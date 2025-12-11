@@ -26,16 +26,36 @@ export class ChatService {
       MessageRole.USER,
       userContent
     );
+    try {
+      const aiMessage = await this.generateAIResponse(sessionId, signal);
+      return { userMessage, aiMessage };
+    } catch (error) {
+      if (axios.isCancel(error) || signal?.aborted) {
+        console.log(
+          "Generation stopped by user. Marking messages as excluded..."
+        );
 
-    const aiMessage = await this.generateAIResponse(sessionId, signal);
+        userMessage.isExcluded = true;
+        await userMessage.save();
 
-    return { userMessage, aiMessage };
+        const stopMessage = await this.chatRepository.createMessage(
+          sessionId,
+          MessageRole.AI,
+          "You stopped this response"
+        );
+        stopMessage.isExcluded = true;
+        await stopMessage.save();
+      }
+      throw error;
+    }
   }
 
   private async generateAIResponse(sessionId: string, signal?: AbortSignal) {
     const history = await this.chatRepository.getMessagesBySession(sessionId);
 
-    const chatHistoryForAI = history.map((msg) => ({
+    const validHistory = history.filter((msg) => !msg.isExcluded);
+
+    const chatHistoryForAI = validHistory.map((msg) => ({
       role: msg.role,
       content: msg.content,
     }));
@@ -87,6 +107,7 @@ export class ChatService {
     }
 
     targetMessage.content = newContent;
+    targetMessage.isExcluded = false;
     await targetMessage.save();
 
     await this.chatRepository.deleteMessagesAfter(
@@ -94,12 +115,27 @@ export class ChatService {
       targetMessage.createdAt
     );
 
-    const aiMessage = await this.generateAIResponse(
-      targetMessage.sessionId,
-      signal
-    );
+    try {
+      const aiMessage = await this.generateAIResponse(
+        targetMessage.sessionId,
+        signal
+      );
+      return { userMessage: targetMessage, aiMessage };
+    } catch (error) {
+      if (axios.isCancel(error) || signal?.aborted) {
+        targetMessage.isExcluded = true;
+        await targetMessage.save();
 
-    return { userMessage: targetMessage, aiMessage };
+        const stopMessage = await this.chatRepository.createMessage(
+          targetMessage.sessionId,
+          MessageRole.AI,
+          "You stopped this response"
+        );
+        stopMessage.isExcluded = true;
+        await stopMessage.save();
+      }
+      throw error;
+    }
   }
 }
 

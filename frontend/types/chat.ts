@@ -10,6 +10,7 @@ export interface IMessage {
   content: string;
   createdAt: string;
   modelUsed?: string;
+  isExcluded?: boolean;
 }
 
 export interface SendMessagePayload {

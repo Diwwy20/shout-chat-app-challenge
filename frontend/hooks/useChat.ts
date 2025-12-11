@@ -48,7 +48,6 @@ export const useChat = () => {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
       setIsSending(false);
-      toast.info("หยุดการสร้างข้อความแล้ว");
     }
   };
 
@@ -84,9 +83,19 @@ export const useChat = () => {
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         if (error.code === "ERR_CANCELED" || error.name === "CanceledError") {
+          const stopMsg: IMessage = {
+            _id: uuidv4(),
+            sessionId,
+            role: MessageRole.AI,
+            content: "You stopped this response",
+            createdAt: new Date().toISOString(),
+            isExcluded: true,
+          };
+          setMessages((prev) => [...prev, stopMsg]);
           return;
         }
       }
+
       setMessages((prev) => prev.filter((msg) => msg._id !== tempId));
       toast.error("AI ไม่สามารถให้บริการในตอนนี้");
     } finally {
@@ -126,6 +135,7 @@ export const useChat = () => {
 
       const freshHistory = await chatService.getHistory(sessionId);
       setMessages(freshHistory);
+      toast.success("แก้ไขและสร้างข้อความใหม่สำเร็จ");
     } catch (error) {
       console.error("Edit error:", error);
       toast.error("เกิดข้อผิดพลาดในการแก้ไข");

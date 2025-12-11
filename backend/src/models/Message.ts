@@ -10,6 +10,7 @@ export interface IMessage extends Document {
   role: MessageRole;
   content: string;
   modelUsed?: string;
+  isExcluded?: boolean;
   createdAt: Date;
 }
 
@@ -30,6 +31,10 @@ const MessageSchema: Schema = new Schema(
       required: true,
     },
     modelUsed: { type: String },
+    isExcluded: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
