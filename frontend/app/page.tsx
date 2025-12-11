@@ -9,6 +9,7 @@ import { MessageSquareText, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ModeToggle } from "@/components/common/ModeToggle";
+import { MessageRole } from "@/types/chat";
 
 export default function ChatPage() {
   const {
@@ -23,6 +24,10 @@ export default function ChatPage() {
     setInputVal,
     editMessage,
   } = useChat();
+
+  const lastUserMessageIndex = messages
+    .map((m) => m.role)
+    .lastIndexOf(MessageRole.USER);
 
   return (
     <main className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans transition-colors duration-300">
@@ -91,8 +96,13 @@ export default function ChatPage() {
           )}
 
           <div className="space-y-6">
-            {messages.map((msg) => (
-              <ChatBubble key={msg._id} message={msg} onUpdate={editMessage} />
+            {messages.map((msg, index) => (
+              <ChatBubble
+                key={msg._id}
+                message={msg}
+                onUpdate={editMessage}
+                isEditable={index === lastUserMessageIndex}
+              />
             ))}
 
             {isSending && (
@@ -102,7 +112,7 @@ export default function ChatPage() {
                   alt="AI Assistant Avatar"
                   width={32}
                   height={32}
-                  className="h-9 w-9 rounded-full"
+                  className="object-cover w-9 h-9 rounded-lg"
                 />
                 <div className="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl rounded-bl-none px-5 py-4 shadow-sm flex items-center gap-1.5 h-8">
                   <span className="w-2 h-2 bg-slate-400 dark:bg-slate-600 rounded-full animate-bounce [animation-delay:-0.3s]"></span>

@@ -11,9 +11,14 @@ import { toast } from "sonner";
 interface ChatBubbleProps {
   message: IMessage;
   onUpdate?: (id: string, newContent: string) => void;
+  isEditable?: boolean;
 }
 
-export const ChatBubble = ({ message, onUpdate }: ChatBubbleProps) => {
+export const ChatBubble = ({
+  message,
+  onUpdate,
+  isEditable = false,
+}: ChatBubbleProps) => {
   const isUser = message.role === MessageRole.USER;
   const maxLength = 500;
 
@@ -101,15 +106,18 @@ export const ChatBubble = ({ message, onUpdate }: ChatBubbleProps) => {
                 >
                   <Copy size={16} />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-700 rounded-sm transition-colors cursor-pointer"
-                  onClick={() => setIsEditing(true)}
-                  title="แก้ไข"
-                >
-                  <Pencil size={16} />
-                </Button>
+
+                {isEditable && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-700 rounded-sm transition-colors cursor-pointer"
+                    onClick={() => setIsEditing(true)}
+                    title="แก้ไข"
+                  >
+                    <Pencil size={16} />
+                  </Button>
+                )}
               </div>
             )}
 
