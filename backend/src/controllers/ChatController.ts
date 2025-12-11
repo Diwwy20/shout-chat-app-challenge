@@ -15,7 +15,6 @@ export class ChatController {
       const abortController = new AbortController();
 
       res.on("close", () => {
-        console.log("Client disconnected. Aborting request...");
         abortController.abort();
       });
 
